@@ -8,7 +8,7 @@
 * Allows for configuring an infinite number of delivery points.
 
 ## Requirements for ESX:
-* ox_lib,
+* [ox_lib](https://github.com/overextended/ox_lib),
 * ox_target
 
 ## Requirements for QBCore:
