@@ -2,6 +2,11 @@
 ### A simple FiveM script introducing the Gruppe Sechs job.
 [![gruppe6job_showcase](https://i.imgur.com/DL3HkNR.png)](https://youtu.be/bdy0TrZTrHw)
 
+## Features:
+* The script is highly optimized,
+* Resistant to cheating or abuse attempts by the player,
+* Allows for configuring an infinite number of delivery points.
+
 ## Requirements for ESX:
 * ox_lib,
 * ox_target
