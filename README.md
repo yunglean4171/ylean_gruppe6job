@@ -9,10 +9,10 @@
 
 ## Requirements for ESX:
 * [ox_lib](https://github.com/overextended/ox_lib),
-* ox_target
+* [ox_target](https://github.com/overextended/ox_target),
 
 ## Requirements for QBCore:
-* qb-target
+* [qb-target](https://github.com/qbcore-framework/qb-target)
   
 ## To Do:
 * for each framework add and configure gruppe6 jobs (there is lot of tutorials on yt),
