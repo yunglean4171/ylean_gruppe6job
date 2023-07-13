@@ -1,4 +1,4 @@
-ESX = nil
+ESX = exports["es_extended"]:getSharedObject()
 local PlayerData = {}
 
 local vehicle_returned = true
@@ -11,15 +11,17 @@ local jobName
 
 Citizen.CreateThread(function()
     while ESX == nil do
-        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
         Citizen.Wait(0)
     end
+
     while ESX.GetPlayerData().job == nil do
-        Citizen.Wait(10)
+        Citizen.Wait(1000)
     end
+    
     PlayerData = ESX.GetPlayerData()
     jobName = PlayerData.job.name
 end)
+
 
 function createPed()
     local pedModel = GetHashKey(Ylean.Config.job_guy_model)
@@ -93,8 +95,6 @@ function spawnVehicle()
 
     -- Zwolnij model pojazdu z pamięci
     SetModelAsNoLongerNeeded(vehicleModel)
-
-    TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(vehicle))
     
     return vehicle
 end
@@ -211,7 +211,7 @@ Citizen.CreateThread(function()
     local job_guy = createPed()
 
     if jobName == Ylean.JobName then
-        exports.ox_target:addEntity(job_guy,
+        exports.ox_target:addLocalEntity(job_guy,
         {
             {
                 name = "startJob",
@@ -240,7 +240,7 @@ AddEventHandler("ylean_start_job", function()
         armored_vehicle = spawnVehicle()
 
         if jobName == Ylean.JobName then
-            exports.ox_target:addEntity(armored_vehicle,
+            exports.ox_target:addLocalEntity(armored_vehicle,
             {
                 {
                     name = "repairVehicle",
