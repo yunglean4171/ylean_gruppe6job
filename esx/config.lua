@@ -1,6 +1,6 @@
 Ylean = {}
 
-Ylean.JobName = "gruppe6"
+Ylean.JobName = "unemployed"
 
 Ylean.Config = {
     vehicle_coords = vector4(-4.74, -670.57, 31.95, 187.08),
@@ -12,7 +12,7 @@ Ylean.Config = {
 
 Ylean.Salary = {
     amount = 10000,
-    type = "cash" -- input "cash" or "bank"
+    type = "money" -- input "money" or "bank"
 }
 
 Ylean.DeliveryPoints = { --add as many as you want :))
