@@ -348,6 +348,7 @@ AddEventHandler("ylean_end_job", function()
         vehicle_returned = true
         TriggerEvent('esx:showNotification',Ylean.Locales.salary_received..""..Ylean.Salary.amount)
         completed_points = 0
+        TriggerServerEvent("ylean_receive_salary")
     else
         TriggerEvent('esx:showNotification', Ylean.Locales.error2)
     end
