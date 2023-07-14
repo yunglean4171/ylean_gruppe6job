@@ -344,6 +344,7 @@ AddEventHandler("ylean_end_job", function()
         vehicle_returned = true
         QBCore.Functions.Notify(Ylean.Locales.salary_received..""..Ylean.Salary.amount, "success", 5000)
         completed_points = 0
+        TriggerServerEvent("ylean_receive_salary")
     else
         QBCore.Functions.Notify(Ylean.Locales.error2, "error", 5000)
     end
