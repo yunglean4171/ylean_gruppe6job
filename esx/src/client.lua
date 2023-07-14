@@ -1,5 +1,6 @@
-ESX = exports["es_extended"]:getSharedObject()
-local PlayerData = {}
+ESX = exports['es_extended']:getSharedObject()
+
+local PlayerData = nil
 
 local vehicle_returned = true
 local blips = {}
@@ -7,21 +8,28 @@ local armored_vehicle
 local is_carrying_cash = false
 local object
 local completed_points = 0
-local jobName
 
 Citizen.CreateThread(function()
-    while ESX == nil do
-        Citizen.Wait(0)
-    end
+	while ESX == nil do
+		Citizen.Wait(0)
+	end
 
-    while ESX.GetPlayerData().job == nil do
-        Citizen.Wait(1000)
-    end
-    
-    PlayerData = ESX.GetPlayerData()
-    jobName = PlayerData.job.name
+	while ESX.GetPlayerData().job == nil do
+		Citizen.Wait(100)
+	end
+
+	PlayerData = ESX.GetPlayerData()
 end)
 
+RegisterNetEvent('esx:playerLoaded')
+AddEventHandler('esx:playerLoaded', function(xPlayer)
+    PlayerData = xPlayer
+end)
+
+RegisterNetEvent('esx:setJob')
+AddEventHandler('esx:setJob', function(job)
+	PlayerData.job = job
+end)
 
 function createPed()
     local pedModel = GetHashKey(Ylean.Config.job_guy_model)
@@ -190,12 +198,22 @@ function drawHint(text)
     DrawText(0.5,0.8)
 end
 
+function IsJobGruppe6()
+	if PlayerData ~= nil then
+		local isJob = false
+		if PlayerData.job.name ~= nil and PlayerData.job.name == Ylean.JobName then
+			isJob = true
+		end
+		return isJob
+	end
+end
+
 Citizen.CreateThread(function()
-    while not NetworkIsPlayerActive(PlayerId()) and QBCore == nil do
-        Citizen.Wait(3)
+    while PlayerData == nil do
+        Citizen.Wait(0)
     end
 
-    if jobName == Ylean.JobName then
+    if IsJobGruppe6() then
         Citizen.CreateThread(function()
             local blip = AddBlipForCoord(Ylean.Config.job_guy_coords.xyz)
             SetBlipAsShortRange(blip, true)
@@ -210,7 +228,7 @@ Citizen.CreateThread(function()
 
     local job_guy = createPed()
 
-    if jobName == Ylean.JobName then
+    if IsJobGruppe6() then
         exports.ox_target:addLocalEntity(job_guy,
         {
             {
@@ -239,7 +257,7 @@ AddEventHandler("ylean_start_job", function()
 
         armored_vehicle = spawnVehicle()
 
-        if jobName == Ylean.JobName then
+        if IsJobGruppe6() then
             exports.ox_target:addLocalEntity(armored_vehicle,
             {
                 {
