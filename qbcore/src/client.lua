@@ -317,6 +317,7 @@ AddEventHandler("ylean_get_cash", function()
                     drawHint(Ylean.Locales.hint)
                     if IsControlJustReleased(0, 38) then
                         detachMoneyBagFromPlayer()
+                        is_carrying_cash = false
                         deleteNearestBlip()
                         mark_point_as_delivered()
 
@@ -327,14 +328,19 @@ AddEventHandler("ylean_get_cash", function()
                             completed_points = completed_points + 1
                             QBCore.Functions.Notify(Ylean.Locales.deliveries_status..""..completed_points.."/"..#Ylean.DeliveryPoints, "success", 5000)
                         end
-
-                        is_carrying_cash = false
                     end
                 end
             end
         end)        
     end
 end)
+
+function resetDelivered()
+    for i, point in ipairs(Ylean.DeliveryPoints) do
+        point.delivered = false
+    end
+end
+
 
 RegisterNetEvent("ylean_end_job")
 AddEventHandler("ylean_end_job", function()
@@ -344,6 +350,7 @@ AddEventHandler("ylean_end_job", function()
         vehicle_returned = true
         QBCore.Functions.Notify(Ylean.Locales.salary_received..""..Ylean.Salary.amount, "success", 5000)
         completed_points = 0
+        resetDelivered()
         TriggerServerEvent("ylean_receive_salary")
     else
         QBCore.Functions.Notify(Ylean.Locales.error2, "error", 5000)
