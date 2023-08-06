@@ -1,14 +1,12 @@
-local QBCore = nil
 QBCore = exports['qb-core']:GetCoreObject()
 
+PlayerJob = {}
 local vehicle_returned = true
 local blips = {}
 local armored_vehicle
 local is_carrying_cash = false
 local object
 local completed_points = 0
-local Player
-local jobName
 
 
 function createPed()
@@ -180,19 +178,9 @@ function drawHint(text)
     DrawText(0.5,0.8)
 end
 
-Citizen.CreateThread(function()
-    while not NetworkIsPlayerActive(PlayerId()) and QBCore == nil do
-        Citizen.Wait(3)
-    end
-
-    while Player == nil or Player.job == nil do  -- Wait until player data is available
-        Player = QBCore.Functions.GetPlayerData()
-        Citizen.Wait(3)
-    end
-    
-    jobName = Player.job.name
-
-    if jobName == Ylean.JobName then
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    PlayerJob = QBCore.Functions.GetPlayerData().job
+    if PlayerJob.name == Ylean.JobName then
         Citizen.CreateThread(function()
             local blip = AddBlipForCoord(Ylean.Config.job_guy_coords.xyz)
             SetBlipAsShortRange(blip, true)
@@ -203,11 +191,47 @@ Citizen.CreateThread(function()
             AddTextComponentString(Ylean.Locales.main_blip_name)
             EndTextCommandSetBlipName(blip)
         end)
+
+        local job_guy = createPed()
+
+        if jobName == Ylean.JobName then
+            exports['qb-target']:AddTargetEntity({job_guy}, {
+                options = {
+                    {
+                        event = "ylean_start_job",
+                        icon = "fas fa-sign-in-alt",
+                        label = Ylean.Locales.start_job_label,
+                        type = "client"
+                    },
+                    {
+                        event = "ylean_end_job",
+                        icon = "fas fa-car",
+                        label = Ylean.Locales.end_job_label,
+                        type = "client"
+                    }
+                },
+                distance = 2.5
+            })
+        end
     end
+end)
 
-    local job_guy = createPed()
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+    PlayerJob = JobInfo
+    if PlayerJob.name == Ylean.JobName then
+        Citizen.CreateThread(function()
+            local blip = AddBlipForCoord(Ylean.Config.job_guy_coords.xyz)
+            SetBlipAsShortRange(blip, true)
+            SetBlipSprite(blip, 67)
+            SetBlipScale(blip, 1.0)
+            SetBlipColour(blip, 1)
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString(Ylean.Locales.main_blip_name)
+            EndTextCommandSetBlipName(blip)
+        end)
 
-    if jobName == Ylean.JobName then
+        local job_guy = createPed()
+        
         exports['qb-target']:AddTargetEntity({job_guy}, {
             options = {
                 {
@@ -230,12 +254,12 @@ end)
 
 RegisterNetEvent("ylean_start_job")
 AddEventHandler("ylean_start_job", function()
-    if vehicle_returned then
-        vehicle_returned = false
+    if PlayerJob.name == Ylean.JobName then
+        if vehicle_returned then
+            vehicle_returned = false
 
-        armored_vehicle = spawnVehicle()
+            armored_vehicle = spawnVehicle()
 
-        if jobName == Ylean.JobName then
             exports['qb-target']:AddTargetEntity({armored_vehicle}, {
                 options = {
                     {
