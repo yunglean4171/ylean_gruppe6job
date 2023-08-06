@@ -279,9 +279,9 @@ AddEventHandler("ylean_start_job", function()
             })
 
             createBlips()
+        else
+            QBCore.Functions.Notify(Ylean.Locales.job_in_progress, "error", 5000)
         end
-    else
-        QBCore.Functions.Notify(Ylean.Locales.job_in_progress, "error", 5000)
     end
 end)
 
