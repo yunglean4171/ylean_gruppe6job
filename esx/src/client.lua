@@ -8,6 +8,8 @@ local armored_vehicle
 local is_carrying_cash = false
 local object
 local completed_points = 0
+local job_guy
+local main_blip
 
 Citizen.CreateThread(function()
 	while ESX == nil do
@@ -29,6 +31,39 @@ end)
 RegisterNetEvent('esx:setJob')
 AddEventHandler('esx:setJob', function(job)
 	PlayerData.job = job
+    if PlayerData.job.name == Ylean.JobName and job_guy == nil and main_blip == nil then
+        Citizen.CreateThread(function()
+            main_blip = AddBlipForCoord(Ylean.Config.job_guy_coords.xyz)
+            SetBlipAsShortRange(blip, true)
+            SetBlipSprite(blip, 67)
+            SetBlipScale(blip, 1.0)
+            SetBlipColour(blip, 1)
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString(Ylean.Locales.main_blip_name)
+            EndTextCommandSetBlipName(blip)
+        end)
+
+        job_guy = createPed()
+
+        exports.ox_target:addLocalEntity(job_guy,
+            {
+                {
+                    name = "startJob",
+                    event = "ylean_start_job",
+                    icon = "fas fa-sign-in-alt",
+                    label = Ylean.Locales.start_job_label,
+                    distance = 2.5
+                },
+                {
+                    name = "endJob",
+                    event = "ylean_end_job",
+                    icon = "fas fa-car",
+                    label = Ylean.Locales.end_job_label,
+                    distance = 2.5
+
+                }
+            })
+    end
 end)
 
 function createPed()
@@ -215,7 +250,7 @@ Citizen.CreateThread(function()
 
     if IsJobGruppe6() then
         Citizen.CreateThread(function()
-            local blip = AddBlipForCoord(Ylean.Config.job_guy_coords.xyz)
+            main_blip = AddBlipForCoord(Ylean.Config.job_guy_coords.xyz)
             SetBlipAsShortRange(blip, true)
             SetBlipSprite(blip, 67)
             SetBlipScale(blip, 1.0)
@@ -224,40 +259,38 @@ Citizen.CreateThread(function()
             AddTextComponentString(Ylean.Locales.main_blip_name)
             EndTextCommandSetBlipName(blip)
         end)
-    end
 
-    local job_guy = createPed()
+        job_guy = createPed()
 
-    if IsJobGruppe6() then
         exports.ox_target:addLocalEntity(job_guy,
-        {
             {
-                name = "startJob",
-                event = "ylean_start_job",
-                icon = "fas fa-sign-in-alt",
-                label = Ylean.Locales.start_job_label,
-                distance = 2.5
-            },
-            {
-                name = "endJob",
-                event = "ylean_end_job",
-                icon = "fas fa-car",
-                label = Ylean.Locales.end_job_label,
-                distance = 2.5
+                {
+                    name = "startJob",
+                    event = "ylean_start_job",
+                    icon = "fas fa-sign-in-alt",
+                    label = Ylean.Locales.start_job_label,
+                    distance = 2.5
+                },
+                {
+                    name = "endJob",
+                    event = "ylean_end_job",
+                    icon = "fas fa-car",
+                    label = Ylean.Locales.end_job_label,
+                    distance = 2.5
 
-            }
-        })
+                }
+            })
     end
 end)
 
 RegisterNetEvent("ylean_start_job")
 AddEventHandler("ylean_start_job", function()
-    if vehicle_returned then
-        vehicle_returned = false
+    if IsJobGruppe6() then
+        if vehicle_returned then
+            vehicle_returned = false
 
-        armored_vehicle = spawnVehicle()
+            armored_vehicle = spawnVehicle()
 
-        if IsJobGruppe6() then
             exports.ox_target:addLocalEntity(armored_vehicle,
             {
                 {
@@ -277,9 +310,9 @@ AddEventHandler("ylean_start_job", function()
                 }
             })
             createBlips()
+        else
+            TriggerEvent('esx:showNotification',Ylean.Locales.job_in_progress)
         end
-    else
-        TriggerEvent('esx:showNotification',Ylean.Locales.job_in_progress)
     end
 end)
 
@@ -371,7 +404,7 @@ AddEventHandler("ylean_end_job", function()
         vehicle_returned = true
         TriggerEvent('esx:showNotification',Ylean.Locales.salary_received..""..Ylean.Salary.amount)
         completed_points = 0
-	resetDelivered()
+	    resetDelivered()
         TriggerServerEvent("ylean_receive_salary")
     else
         TriggerEvent('esx:showNotification', Ylean.Locales.error2)
